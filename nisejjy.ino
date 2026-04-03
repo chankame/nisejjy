@@ -32,6 +32,7 @@
 
 #include <WiFi.h>
 #include "BluetoothSerial.h"
+#include "esp_mac.h"
 BluetoothSerial SerialBT;
 #define DEVICENAME "niseJJY"
 char ssid[] = "SSID";
@@ -399,10 +400,9 @@ starttimer(void)
   ampc = 0;
   radioc = 0;
   timerSemaphore = xSemaphoreCreateBinary();    // create semaphore
-  tm0 = timerBegin(0, tm0cycle, true);          // tm0 prescaler
-  timerAttachInterrupt(tm0, &onTimer, true);    // tm0 intr routine: onTimer()
-  timerAlarmWrite(tm0, TM0RES, true);           // tm0 resolution
-  timerAlarmEnable(tm0);                        // tm0 start
+  tm0 = timerBegin(80000000 / tm0cycle);        // tm0 frequency (Hz)
+  timerAttachInterrupt(tm0, &onTimer);          // tm0 intr routine: onTimer()
+  timerAlarm(tm0, TM0RES, true, 0);            // tm0 resolution + start
   Serial.print("(re)started timer...\n");
   istimerstarted = 1;
   return;
